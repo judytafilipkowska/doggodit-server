@@ -25,6 +25,12 @@ app.use("/", authRoutes);
 const userRoutes = require("./routes/user.routes");
 app.use("/", userRoutes);
 
+const dogRoutes = require("./routes/dog.routes");
+app.use("/", dogRoutes);
+
+const postRoutes = require("./routes/post.routes");
+app.use("/", postRoutes);
+
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);
 

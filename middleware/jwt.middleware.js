@@ -26,16 +26,7 @@ function getTokenFromHeaders(req) {
 }
 
 // CUSTOM MIDDLEWARE
-function isAdmin(req, res, next) {
-  if (req.payload && req.payload.role === "admin") {
-    next();
-  } else {
-    throw new Error("User is not an admin");
-  }
-}
+
 
 // Export the middleware so that we can use it to create a protected routes
-module.exports = {
-  isAuthenticated,
-  isAdmin,
-};
+module.exports = isAuthenticated;

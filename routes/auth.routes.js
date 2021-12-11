@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
 
-const { isAuthenticated, isAdmin } = require("./../middleware/jwt.middleware");
+const isAuthenticated = require("./../middleware/jwt.middleware");
 
 const saltRounds = 10;
 
@@ -54,7 +54,7 @@ router.post("/auth/signup", async (req, res, next) => {
     const createdUser = await User.create({
       email,
       password: hashedPassword,
-      name,
+      name
     });
 
     // We should never expose passwords publicly
@@ -65,7 +65,7 @@ router.post("/auth/signup", async (req, res, next) => {
     };
 
     // Send the response back
-    res.status(201).json({ user: user });
+    res.status(201).json({ name: name, email: email });
   } catch (error) {
     next(error);
   }
@@ -100,8 +100,7 @@ router.post("/auth/login", async (req, res, next) => {
         _id: foundUser._id,
         email: foundUser.email,
         name: foundUser.name,
-        role: foundUser.role, // 'admin' or 'user'
-        image: foundUser.image, 
+
       };
 
       // Create a JWT with the payload
@@ -136,3 +135,5 @@ router.get("/auth/verify", isAuthenticated, async (req, res, next) => {
 });
 
 module.exports = router;
+
+
