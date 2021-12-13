@@ -4,7 +4,7 @@ const User = require("../models/user.model");
 const Post = require("../models/post.model")
 const isAuthenticated = require("./../middleware/jwt.middleware");
 const mongoose = require('mongoose');
-
+const fileUploader = require("../config/cloudinary");
 
 // GET /api/users/current  - Get current user info
 router.get('/api/users/current', isAuthenticated, async (req, res, next) => {
@@ -28,11 +28,12 @@ router.put('/api/users/current', isAuthenticated, async (req, res, next) => {
     // req.payload holds the user info that was encoded in JWT during login.
 
     const currentUser = req.payload;
-    const { email, name } = req.body;
+
+    const { email, name, image } = req.body;
 
     const updatedUser = await User.findByIdAndUpdate(
       currentUser._id,
-      { email, name },
+      { email, name, image },
       { new: true }
     );
 
@@ -42,16 +43,6 @@ router.put('/api/users/current', isAuthenticated, async (req, res, next) => {
   }
 })
 
-
-//GET /api/users/current/logout
-// router.get("api/users/current/logout", isAuthenticated, async(req, res, next => {
-//   try {
-//     const currentUser = req.payload;
-//     const user = await
-//   } catch (error) {
-
-//   }
-// }))
 
 //GET /api/users/current/favourites
 
@@ -102,9 +93,9 @@ router.get("/api/users/current/posts/:postId", isAuthenticated, async (req, res,
 }
 );
 
-//! POST /api/users/current/posts/:postId/delete
+// delete /api/users/current/posts/:postId/delete
 
-router.get("/api/users/current/posts/:postId/delete", isAuthenticated, async (req, res, next) => {
+router.delete("/api/users/current/posts/:postId/delete", isAuthenticated, async (req, res, next) => {
   try {
     const { postId } = req.params;
     console.log(req.params);
@@ -123,9 +114,9 @@ router.get("/api/users/current/posts/:postId/delete", isAuthenticated, async (re
   }
 });
 
-//GET /api/users/current/posts/:postId/edit
+//PUT /api/users/current/posts/:postId/edit
 
-router.put("/api/users/current/posts/:postId/edit", isAuthenticated, async (req, res, next) => {
+router.put("/api/users/current/posts/:postId/edit", fileUploader.single("postImage"), isAuthenticated, async (req, res, next) => {
   try {
 
     const { postId } = req.params;
@@ -140,7 +131,7 @@ router.put("/api/users/current/posts/:postId/edit", isAuthenticated, async (req,
 
     const updatedPost = await Post.findByIdAndUpdate(
       postId,
-      { tag, postText, postImage },
+      { tag, postText, postImage: req.file.path },
       { new: true }
     );
 

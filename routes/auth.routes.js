@@ -4,15 +4,17 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
 
+
 const isAuthenticated = require("./../middleware/jwt.middleware");
 
 const saltRounds = 10;
+
 
 // POST /auth/signup
 router.post("/auth/signup", async (req, res, next) => {
   try {
     // Get the data from req.body
-    const { email, password, name } = req.body;
+    const { email, password, image, name } = req.body;
 
     // Validate that values are not empty strings
     if (email === "" || password === "" || name === "") {
@@ -54,7 +56,8 @@ router.post("/auth/signup", async (req, res, next) => {
     const createdUser = await User.create({
       email,
       password: hashedPassword,
-      name
+      name,
+      image
     });
 
     // We should never expose passwords publicly
@@ -62,10 +65,11 @@ router.post("/auth/signup", async (req, res, next) => {
       _id: createdUser._id,
       email: createdUser.email,
       name: createdUser.name,
+      image: createdUser.image
     };
 
     // Send the response back
-    res.status(201).json({ name: name, email: email });
+    res.status(201).json({ name: name, email: email, image: image });
   } catch (error) {
     next(error);
   }
@@ -100,6 +104,7 @@ router.post("/auth/login", async (req, res, next) => {
         _id: foundUser._id,
         email: foundUser.email,
         name: foundUser.name,
+        image: foundUser.image
 
       };
 

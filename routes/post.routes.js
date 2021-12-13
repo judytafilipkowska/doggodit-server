@@ -7,14 +7,15 @@ const mongoose = require("mongoose");
 const User = require("../models/user.model");
 
 
-
 //POST /api/postss
 router.post("/api/posts", isAuthenticated, async (req, res, next) => {
     try {
 
-        const { tag, postImage, postText } = req.body;
+        const { tag, postText, postImage } = req.body;
         const currentUser = req.payload;
-        const userId = currentUser._id
+        const userId = currentUser._id;
+
+        console.log(`TAG ${tag} POSTTEXT ${postText} POSTIMG ${postImage}`)
 
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             res.status(400).json({ message: "There is no such user" });
