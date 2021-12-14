@@ -93,12 +93,12 @@ router.get("/api/users/current/posts/:postId", isAuthenticated, async (req, res,
 }
 );
 
-// delete /api/users/current/posts/:postId/delete
+// delete /api/users/current/posts/:postId
 
-router.delete("/api/users/current/posts/:postId/delete", isAuthenticated, async (req, res, next) => {
+router.delete("/api/users/current/posts/:postId", isAuthenticated, async (req, res, next) => {
   try {
     const { postId } = req.params;
-    console.log(req.params);
+    console.log(postId);
 
 
     if (!mongoose.Types.ObjectId.isValid(postId)) {
@@ -131,7 +131,7 @@ router.put("/api/users/current/posts/:postId/edit", fileUploader.single("postIma
 
     const updatedPost = await Post.findByIdAndUpdate(
       postId,
-      { tag, postText, postImage: req.file.path },
+      { tag, postText, postImage },
       { new: true }
     );
 

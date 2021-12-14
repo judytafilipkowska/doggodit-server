@@ -15,7 +15,7 @@ router.post("/api/posts", isAuthenticated, async (req, res, next) => {
         const currentUser = req.payload;
         const userId = currentUser._id;
 
-        console.log(`TAG ${tag} POSTTEXT ${postText} POSTIMG ${postImage}`)
+
 
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             res.status(400).json({ message: "There is no such user" });
@@ -37,7 +37,7 @@ router.post("/api/posts", isAuthenticated, async (req, res, next) => {
 // GET /api/posts
 router.get("/api/posts", async (req, res, next) => {
     try {
-        const feed = await Post.find().populate("comments");
+        const feed = await Post.find().populate("comments createdBy");
 
         res.status(200).json(feed);
     } catch (error) {
@@ -56,7 +56,7 @@ router.get("/api/posts/:postId", async (req, res, next) => {
             return;
         }
 
-        const onePost = await Post.findById(postId).populate("comments");
+        const onePost = await Post.findById(postId).populate("comments createdBy");
         res.status(200).json(onePost);
     } catch (error) {
         next(error);
