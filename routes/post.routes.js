@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 const User = require("../models/user.model");
 
 
-//POST /api/postss
+//POST /api/posts
 router.post("/api/posts", isAuthenticated, async (req, res, next) => {
     try {
 
@@ -64,12 +64,12 @@ router.get("/api/posts/:postId", async (req, res, next) => {
 })
 
 
-// POST /api/comments
-router.post("/api/comments", isAuthenticated, async (req, res, next) => {
+// POST /api/comment
+router.post("/api/comment", isAuthenticated, async (req, res, next) => {
     try {
 
         const { commentText, postId } = req.body;
-
+        const { userId } = req.params
 
         if (!mongoose.Types.ObjectId.isValid(postId)) {
             res.status(400).json({ message: "There is no such post" });
@@ -82,8 +82,10 @@ router.post("/api/comments", isAuthenticated, async (req, res, next) => {
         const createdComment = await Comment.create({ commentText, addedBy: currentUser._id, post: postId });
         await Post.findByIdAndUpdate(postId, { $push: { comments: createdComment._id } });
 
+        await User.findByIdAndUpdate(userId, { $push: { interactions: createdComment._id } })
         res.status(201).json(createdComment);
     } catch (error) {
+
         next(error);
     }
 })

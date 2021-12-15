@@ -24,8 +24,8 @@ const userSchema = new Schema({
   name: { type: String, unique: true, required: true },
   image: { type: String, default: "https://i.imgur.com/yWHfhiG.png" },
   posts: [{ type: Schema.Types.ObjectId, ref: "Post" }],
-  // favourites: [Number],
-  interactions: [{ type: Schema.Types.ObjectId, ref: "Post" }]
-});
+  interactions: [{ type: Schema.Types.ObjectId, ref: "Comment" }]
+},
+  { timestamps: true });
 
 module.exports = model("User", userSchema);

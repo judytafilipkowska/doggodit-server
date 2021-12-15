@@ -65,7 +65,7 @@ router.put('/api/users/current', isAuthenticated, async (req, res, next) => {
 
 router.get("/api/users/current/posts", isAuthenticated, async (req, res, next) => {
   try {
-    const allPosts = await Post.find().populate("comments");
+    const allPosts = await Post.find().populate("comments createdBy");
 
     res.status(200).json(allPosts);
   } catch (error) {
@@ -84,7 +84,7 @@ router.get("/api/users/current/posts/:postId", isAuthenticated, async (req, res,
       return;
     }
 
-    const onePost = await Post.findById(postId).populate("comments");
+    const onePost = await Post.findById(postId).populate("comments createdBy");
 
     res.status(200).json(onePost);
   } catch (error) {
@@ -101,10 +101,10 @@ router.delete("/api/users/current/posts/:postId", isAuthenticated, async (req, r
     console.log(postId);
 
 
-    if (!mongoose.Types.ObjectId.isValid(postId)) {
-      res.status(400).json({ message: "There is no such post" });
-      return;
-    }
+    // if (!mongoose.Types.ObjectId.isValid(postId)) {
+    //   res.status(400).json({ message: "There is no such post" });
+    //   return;
+    // }
 
     await Post.findByIdAndDelete(postId);
 
@@ -145,8 +145,19 @@ router.put("/api/users/current/posts/:postId/edit", fileUploader.single("postIma
 
 //GET /api/users/current/interactions 
 
-// router.get("/api/users/current/interactions", isAuthenticated, async(req, res, next => {
+router.get("/api/users/current/interactions", isAuthenticated, async (req, res, next) => {
 
-// }))
+  const { commentId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(commentId)) {
+    res.status(400).json({ message: "There is no such comment" });
+    return;
+  }
+  const currentUser = req.payload;
+
+  const interactedPost = await User.findById(commentId).populate("post");
+  res.status(200).json(interactedPost);
+})
+
 
 module.exports = router;
