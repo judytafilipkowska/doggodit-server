@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/user.model");
-const Post = require("../models/post.model")
+const Post = require("../models/post.model");
+const Comment = require("../models/comment.model");
 const isAuthenticated = require("./../middleware/jwt.middleware");
 const mongoose = require('mongoose');
 const fileUploader = require("../config/cloudinary");
@@ -63,11 +64,16 @@ router.put('/api/users/current', isAuthenticated, async (req, res, next) => {
 
 // GET / api / users / current / posts
 
-router.get("/api/users/current/posts", isAuthenticated, async (req, res, next) => {
+router.get("/api/users/current/:userId/posts", isAuthenticated, async (req, res, next) => {
   try {
-    const allPosts = await Post.find().populate("comments createdBy");
 
+    const { userId } = req.params
+
+    const allPosts = await User.findById(userId).populate("posts");
     res.status(200).json(allPosts);
+
+    // const allPosts = await User.find(postId).populate("");
+
   } catch (error) {
     next(error);
   }
@@ -116,7 +122,7 @@ router.delete("/api/users/current/posts/:postId", isAuthenticated, async (req, r
 
 //PUT /api/users/current/posts/:postId/edit
 
-router.put("/api/users/current/posts/:postId/edit", fileUploader.single("postImage"), isAuthenticated, async (req, res, next) => {
+router.put("/api/users/current/posts/:postId/edit", isAuthenticated, async (req, res, next) => {
   try {
 
     const { postId } = req.params;
@@ -146,17 +152,20 @@ router.put("/api/users/current/posts/:postId/edit", fileUploader.single("postIma
 //GET /api/users/current/interactions 
 
 router.get("/api/users/current/interactions", isAuthenticated, async (req, res, next) => {
+  try {
 
-  const { commentId } = req.params;
+    const currentUser = req.payload;
+    const userId = currentUser._id
+    const populateComments = await Comment.find().populate({ path: "post", populate: { path: "createdBy" } })
 
-  if (!mongoose.Types.ObjectId.isValid(commentId)) {
-    res.status(400).json({ message: "There is no such comment" });
-    return;
+    const resultsArr = populateComments.filter(comment => {
+      return (comment.addedBy._id == userId)
+    })
+
+    res.status(200).json([resultsArr]);
+  } catch (error) {
+    next(error)
   }
-  const currentUser = req.payload;
-
-  const interactedPost = await User.findById(commentId).populate("post");
-  res.status(200).json(interactedPost);
 })
 
 

@@ -56,7 +56,7 @@ router.get("/api/posts/:postId", async (req, res, next) => {
             return;
         }
 
-        const onePost = await Post.findById(postId).populate("comments createdBy");
+        const onePost = await Post.findById(postId).populate({ path: "createdBy" }, { path: "comments", populate: { path: "addedBy" } });
         res.status(200).json(onePost);
     } catch (error) {
         next(error);
@@ -79,10 +79,11 @@ router.post("/api/comment", isAuthenticated, async (req, res, next) => {
 
 
 
-        const createdComment = await Comment.create({ commentText, addedBy: currentUser._id, post: postId });
+        const createdComment = await Comment.create({ commentText, addedBy: currentUser._id, post: postId }).populate({ path: "createdBy" }, { path: "comments", populate: { path: "addedBy" } });;
         await Post.findByIdAndUpdate(postId, { $push: { comments: createdComment._id } });
 
         await User.findByIdAndUpdate(userId, { $push: { interactions: createdComment._id } })
+
         res.status(201).json(createdComment);
     } catch (error) {
 
