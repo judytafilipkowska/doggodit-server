@@ -79,7 +79,7 @@ router.post("/api/comment", isAuthenticated, async (req, res, next) => {
 
 
 
-        const createdComment = await Comment.create({ commentText, addedBy: currentUser._id, post: postId }).populate({ path: "createdBy" }, { path: "comments", populate: { path: "addedBy" } });;
+        const createdComment = await Comment.create({ commentText, addedBy: currentUser._id, post: postId });
         await Post.findByIdAndUpdate(postId, { $push: { comments: createdComment._id } });
 
         await User.findByIdAndUpdate(userId, { $push: { interactions: createdComment._id } })
