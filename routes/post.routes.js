@@ -15,8 +15,6 @@ router.post("/api/posts", isAuthenticated, async (req, res, next) => {
         const currentUser = req.payload;
         const userId = currentUser._id;
 
-
-
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             res.status(400).json({ message: "There is no such user" });
             return;

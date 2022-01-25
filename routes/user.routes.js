@@ -10,9 +10,6 @@ const fileUploader = require("../config/cloudinary");
 // GET /api/users/current  - Get current user info
 router.get('/api/users/current', isAuthenticated, async (req, res, next) => {
   try {
-    // If the user is authenticated we can access the JWT payload via req.payload
-    // req.payload holds the user info that was encoded in JWT during login.
-
     const currentUser = req.payload;
     const user = await User.findById(currentUser._id);
 
@@ -44,24 +41,6 @@ router.put('/api/users/current', isAuthenticated, async (req, res, next) => {
   }
 })
 
-
-//GET /api/users/current/favourites
-
-// router.get("/api/users/current/favourites", async, isAuthenticated, (req, res, next => {
-//   const currentUser = req.payload;
-//    const myFavs = await User.findById(currentUser._id)
-//     const 
-//     .then((foundUser) => {
-//       const  = foundUser.favourites;
-//     })
-// }))
-
-//POST /api/users/current/favourites/:favourtieId/delete
-
-// router.post("/api/users/current/favourites/:favourtieId/delete", async(req, res, next => {
-
-// }))
-
 // GET / api / users / current / posts
 
 router.get("/api/users/current/:userId/posts", isAuthenticated, async (req, res, next) => {
@@ -72,7 +51,6 @@ router.get("/api/users/current/:userId/posts", isAuthenticated, async (req, res,
     const allPosts = await User.findById(userId).populate("posts");
     res.status(200).json(allPosts);
 
-    // const allPosts = await User.find(postId).populate("");
 
   } catch (error) {
     next(error);
@@ -105,12 +83,6 @@ router.delete("/api/users/current/posts/:postId", isAuthenticated, async (req, r
   try {
     const { postId } = req.params;
     console.log(postId);
-
-
-    // if (!mongoose.Types.ObjectId.isValid(postId)) {
-    //   res.status(400).json({ message: "There is no such post" });
-    //   return;
-    // }
 
     await Post.findByIdAndDelete(postId);
 
@@ -146,7 +118,6 @@ router.put("/api/users/current/posts/:postId/edit", isAuthenticated, async (req,
     next();
   }
 });
-
 
 
 //GET /api/users/current/interactions 

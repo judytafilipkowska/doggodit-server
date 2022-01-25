@@ -13,24 +13,19 @@ const saltRounds = 10;
 // POST /auth/signup
 router.post("/auth/signup", async (req, res, next) => {
   try {
-    // Get the data from req.body
     const { email, password, image, name } = req.body;
 
-    // Validate that values are not empty strings
     if (email === "" || password === "" || name === "") {
       res.status(400).json({ message: "Provide email, password and name." });
       return;
     }
 
-    // Validate email and password format
-    // Use regex to validate the email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     if (!emailRegex.test(email)) {
       res.status(400).json({ message: "Provide a valid email address." });
       return;
     }
 
-    // Use regex to validate the password format
     const passwordRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
     if (!passwordRegex.test(password)) {
       res.status(400).json({
@@ -40,7 +35,6 @@ router.post("/auth/signup", async (req, res, next) => {
       return;
     }
 
-    // Check if email is not taken
     const foundUser = await User.findOne({ email });
 
     if (foundUser) {
@@ -48,11 +42,10 @@ router.post("/auth/signup", async (req, res, next) => {
       return;
     }
 
-    // Hash the password
     const salt = await bcrypt.genSalt(saltRounds);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create the new user in the DB
+
     const createdUser = await User.create({
       email,
       password: hashedPassword,
@@ -60,7 +53,6 @@ router.post("/auth/signup", async (req, res, next) => {
       image
     });
 
-    // We should never expose passwords publicly
     const user = {
       _id: createdUser._id,
       email: createdUser.email,
@@ -68,7 +60,6 @@ router.post("/auth/signup", async (req, res, next) => {
       image: createdUser.image
     };
 
-    // Send the response back
     res.status(201).json({ name: name, email: email, image: image });
   } catch (error) {
     next(error);
@@ -78,16 +69,13 @@ router.post("/auth/signup", async (req, res, next) => {
 // POST /auth/login
 router.post("/auth/login", async (req, res, next) => {
   try {
-    // Get values from req.body
     const { email, password } = req.body;
 
-    // Validate that values are not empty strings
     if (email === "" || password === "") {
       res.status(400).json({ message: "Provide email and password" });
       return;
     }
 
-    // Check if the user exists
     const foundUser = await User.findOne({ email: email });
 
     if (!foundUser) {
@@ -95,11 +83,9 @@ router.post("/auth/login", async (req, res, next) => {
       return;
     }
 
-    //  Compare the provided password with one from debugger
     const passwordCorrect = await bcrypt.compare(password, foundUser.password);
 
     if (passwordCorrect) {
-      // We should never expose passwords publicly
       const payload = {
         _id: foundUser._id,
         email: foundUser.email,
@@ -108,17 +94,14 @@ router.post("/auth/login", async (req, res, next) => {
 
       };
 
-      // Create a JWT with the payload
-      // jwt.sign(payload, secretKey, options)
       const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
         algorithm: "HS256",
         expiresIn: "12h",
       });
 
-      // Send the response
       res.status(200).json({ authToken: authToken });
     } else if (!passwordCorrect) {
-      res.status(401).json({ message: "Unable to login the user" }); // Unathorized
+      res.status(401).json({ message: "Unable to login the user" });
     }
   } catch (error) {
     next(error);
@@ -128,11 +111,6 @@ router.post("/auth/login", async (req, res, next) => {
 // GET /auth/verify  - Verify tokens stored in the frontend
 router.get("/auth/verify", isAuthenticated, async (req, res, next) => {
   try {
-    // If JWT is valid the payload gets decoded by isAuthenticated middleware
-    // and made available on req.payload
-
-    // Send back the object with the user data
-    // previously saved as the token payload
     res.status(200).json(req.payload);
   } catch (error) {
     next(error);
